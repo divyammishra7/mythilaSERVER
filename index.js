@@ -10,6 +10,10 @@ app.use(cors());
 app.use(express.urlencoded({extended:false}))
 const PORT=process.env.REACT_APP_PORT_NUMBER;
 console.log(PORT);
+app.get('/',(req,res)=>{
+    res.send("HI FROM SERVER");
+
+})
 app.post('/order',async(req,res)=>{
     try{
     const razorpay=new Razorpay({
