@@ -8,7 +8,7 @@ const app=express();
 app.use(express.json());
 app.use(cors());
 app.use(express.urlencoded({extended:false}))
-const { sendOrderEmail } = require("./emailService");
+const { sendOrderEmail , sendOrderEmailtoCustomer} = require("./emailService");
 const PORT=process.env.REACT_APP_PORT_NUMBER;
 console.log(PORT);
 app.get('/',(req,res)=>{
@@ -68,6 +68,17 @@ const {
       razorpay_payment_id,
       razorpay_order_id,
     });
+    const orderDetails = {
+      customerName,
+      email,
+      items, // [{ name, quantity, price }, ...]
+      amount,
+      address,
+      orderId: razorpay_order_id,
+      razorpay_payment_id
+    };
+await sendOrderEmailtoCustomer(orderDetails)
+
     res.json({
         msg:"success",
         orderId:razorpay_order_id,

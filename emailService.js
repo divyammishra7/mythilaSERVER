@@ -1,7 +1,8 @@
 // emailService.js
 const nodemailer = require("nodemailer");
+const sgMail = require('@sendgrid/mail');
 require("dotenv").config();
-
+ sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 // Setup transporter once
 const transporter = nodemailer.createTransport({
   service: "gmail",
@@ -32,5 +33,33 @@ async function sendOrderEmail({ customerName, email, address, items, amount, raz
     `,
   });
 }
+async function sendOrderEmailtoCustomer(orderDetails) {
+  try {
+     const { customerName, email, items, amount, address, orderId, razorpay_payment_id } = orderDetails;
+     const itemList = items.map(i => `<li>${i.name} x ${i.qty} - ₹${i.price}</li>`).join('');
+    const msg = {
+      to: email,
+      from: 'mythila2021@gmail.com', // your verified single sender
+      subject: `✅ Order Confirmation - ${orderId}`,
+      html: `
+        <h2>Hi ${customerName},</h2>
+        <p>Thank you for your order! Here are the details:</p>
+        <ul>${itemList}</ul>
+        <p><strong>Total Paid:</strong> ₹${amount}</p>
+        <p><strong>Delivery Address:</strong> ${address}</p>
+        <p><strong>Payment ID:</strong> ${razorpay_payment_id}</p>
+        <p><strong>Order ID:</strong> ${orderId}</p>
+        <p>We’ll notify you once your order is shipped 🚀</p>
+      `
+    };
 
-module.exports = { sendOrderEmail };
+    await sgMail.send(msg);
+    console.log("✅ Order confirmation email sent!");
+  } catch (err) {
+    console.error("❌ Error sending order email:", err.response?.body || err);
+  }
+}
+
+
+
+module.exports = { sendOrderEmail, sendOrderEmailtoCustomer };
