@@ -8,6 +8,7 @@ const app=express();
 app.use(express.json());
 app.use(cors());
 app.use(express.urlencoded({extended:false}))
+const { sendOrderEmail } = require("./emailService");
 const PORT=process.env.REACT_APP_PORT_NUMBER;
 console.log(PORT);
 app.get('/',(req,res)=>{
@@ -39,7 +40,17 @@ catch(err){
     
 })
 app.post('/order/validate',async(req,res)=>{
-    const {razorpay_payment_id,razorpay_order_id, razorpay_signature}=req.body;
+const {
+  razorpay_payment_id,
+  razorpay_order_id,
+  razorpay_signature,
+  customerName,
+  email,
+  address,
+  contact,
+  items,
+  amount
+} = req.body;
     const sha=crypto.createHmac("sha256",process.env.RAZORPAY_KEY_SECRET);
     sha.update(`${razorpay_order_id}|${razorpay_payment_id}`);
     const digest=sha.digest("hex");
@@ -48,6 +59,15 @@ app.post('/order/validate',async(req,res)=>{
     if(digest!==razorpay_signature){
         return res.status(404).json({msg:"Transaction is not Legit"});
     }
+        await sendOrderEmail({
+      customerName,
+      email,
+      address,
+      items,
+      amount,
+      razorpay_payment_id,
+      razorpay_order_id,
+    });
     res.json({
         msg:"success",
         orderId:razorpay_order_id,
