@@ -40,7 +40,7 @@ async function sendOrderEmailtoCustomer(orderDetails) {
     const msg = {
       to: email,
       from: 'mythila2021@gmail.com', // your verified single sender
-      subject: `✅ Order Confirmation - ${orderId}`,
+      subject: `✅ Order Confirmation - Mythila`,
       html: `
         <h2>Hi ${customerName},</h2>
         <p>Thank you for your order! Here are the details:</p>

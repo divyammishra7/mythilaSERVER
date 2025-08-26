@@ -9,7 +9,7 @@ app.use(express.json());
 app.use(cors());
 app.use(express.urlencoded({extended:false}))
 const { sendOrderEmail , sendOrderEmailtoCustomer} = require("./emailService");
-const PORT=process.env.REACT_APP_PORT_NUMBER;
+const PORT=process.env.PORT || 3000;
 console.log(PORT);
 app.get('/',(req,res)=>{
     res.send("HI FROM SERVER")  //;
