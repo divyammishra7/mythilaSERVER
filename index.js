@@ -9,12 +9,18 @@ app.use(express.json());
 app.use(cors());
 app.use(express.urlencoded({extended:false}))
 const { sendOrderEmail , sendOrderEmailtoCustomer} = require("./emailService");
-const PORT=process.env.PORT || 3000;
+const dashboardRouter = require('./routes/dashboardRouter');
+const analyticsRouter = require('./routes/analyticsRouter');
+const PORT=process.env.PORT || 5000;
 console.log(PORT);
 app.get('/',(req,res)=>{
     res.send("HI FROM SERVER")  //;
 
 })
+
+// New API routes (proxy to Supabase)
+app.use('/api/dashboard', dashboardRouter);
+app.use('/api/analytics', analyticsRouter);
 
 app.post('/order',async(req,res)=>{
     try{
