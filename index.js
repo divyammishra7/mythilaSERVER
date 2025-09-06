@@ -11,7 +11,7 @@ app.use(express.urlencoded({extended:false}))
 const { sendOrderEmail , sendOrderEmailtoCustomer} = require("./emailService");
 const dashboardRouter = require('./routes/dashboardRouter');
 const analyticsRouter = require('./routes/analyticsRouter');
-const PORT=process.env.PORT || 5000;
+const PORT=process.env.PORT || 3000;
 console.log(PORT);
 app.get('/',(req,res)=>{
     res.send("HI FROM SERVER")  //;
