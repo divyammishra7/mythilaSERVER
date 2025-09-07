@@ -11,7 +11,8 @@ app.use(express.urlencoded({extended:false}))
 const { sendOrderEmail , sendOrderEmailtoCustomer} = require("./emailService");
 const dashboardRouter = require('./routes/dashboardRouter');
 const analyticsRouter = require('./routes/analyticsRouter');
-const PORT=process.env.PORT || 3000;
+const paymentRouter = require("./routes/paymentRouter");
+const PORT= process.env.PORT || 3000;
 console.log(PORT);
 app.get('/',(req,res)=>{
     res.send("HI FROM SERVER")  //;
@@ -21,77 +22,83 @@ app.get('/',(req,res)=>{
 // New API routes (proxy to Supabase)
 app.use('/api/dashboard', dashboardRouter);
 app.use('/api/analytics', analyticsRouter);
+app.use("/", paymentRouter);
 
-app.post('/order',async(req,res)=>{
-    try{
-    const razorpay=new Razorpay({
-        key_id:process.env.RAZORPAY_KEY_ID,
-        key_secret:process.env.RAZORPAY_KEY_SECRET,
 
-    })
- const options=req.body;
- const order=await razorpay.orders.create(options);
- if(!order){
 
-    return res.status(404).send("Error");
- }
 
- res.json(order);
-}
-catch(err){
-    res.send("err");
-    console.log(err);
-}
+// //PAYMENT LOGIC BELOW THIS HANDLE WITH CARE
+
+// app.post('/order',async(req,res)=>{
+//     try{
+//     const razorpay=new Razorpay({
+//         key_id:process.env.RAZORPAY_KEY_ID,
+//         key_secret:process.env.RAZORPAY_KEY_SECRET,
+
+//     })
+//  const options=req.body;
+//  const order=await razorpay.orders.create(options);
+//  if(!order){
+
+//     return res.status(404).send("Error");
+//  }
+
+//  res.json(order);
+// }
+// catch(err){
+//     res.send("err");
+//     console.log(err);
+// }
  
     
-})
-app.post('/order/validate',async(req,res)=>{
-const {
-  razorpay_payment_id,
-  razorpay_order_id,
-  razorpay_signature,
-  customerName,
-  email,
-  address,
-  contact,
-  items,
-  amount
-} = req.body;
-    const sha=crypto.createHmac("sha256",process.env.RAZORPAY_KEY_SECRET);
-    sha.update(`${razorpay_order_id}|${razorpay_payment_id}`);
-    const digest=sha.digest("hex");
-    console.log(digest);
-    console.log(razorpay_signature);
-    if(digest!==razorpay_signature){
-        return res.status(404).json({msg:"Transaction is not Legit"});
-    }
-        await sendOrderEmail({
-      customerName,
-      email,
-      address,
-      items,
-      amount,
-      razorpay_payment_id,
-      razorpay_order_id,
-    });
-    const orderDetails = {
-      customerName,
-      email,
-      items, // [{ name, quantity, price }, ...]
-      amount,
-      address,
-      orderId: razorpay_order_id,
-      razorpay_payment_id
-    };
-await sendOrderEmailtoCustomer(orderDetails)
+// })
+// app.post('/order/validate',async(req,res)=>{
+// const {
+//   razorpay_payment_id,
+//   razorpay_order_id,
+//   razorpay_signature,
+//   customerName,
+//   email,
+//   address,
+//   contact,
+//   items,
+//   amount
+// } = req.body;
+//     const sha=crypto.createHmac("sha256",process.env.RAZORPAY_KEY_SECRET);
+//     sha.update(`${razorpay_order_id}|${razorpay_payment_id}`);
+//     const digest=sha.digest("hex");
+//     console.log(digest);
+//     console.log(razorpay_signature);
+//     if(digest!==razorpay_signature){
+//         return res.status(404).json({msg:"Transaction is not Legit"});
+//     }
+//         await sendOrderEmail({
+//       customerName,
+//       email,
+//       address,
+//       items,
+//       amount,
+//       razorpay_payment_id,
+//       razorpay_order_id,
+//     });
+//     const orderDetails = {
+//       customerName,
+//       email,
+//       items, 
+//       amount,
+//       address,
+//       orderId: razorpay_order_id,
+//       razorpay_payment_id
+//     };
+// await sendOrderEmailtoCustomer(orderDetails)
 
-    res.json({
-        msg:"success",
-        orderId:razorpay_order_id,
-        paymentId:razorpay_payment_id,
-    })
+//     res.json({
+//         msg:"success",
+//         orderId:razorpay_order_id,
+//         paymentId:razorpay_payment_id,
+//     })
     
-})
+// })
 app.listen(PORT,()=>{
     console.log("hi");
 })

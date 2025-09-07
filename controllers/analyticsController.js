@@ -2,6 +2,7 @@ const { supabase } = require('../utils/supabaseClient');
 
 async function getOrders(req, res) {
 	try {
+		console.log("call aayi")
 		const { data, error } = await supabase
 			.from('orders')
 			.select('*')
@@ -10,6 +11,7 @@ async function getOrders(req, res) {
 			return res.status(400).json({ error: error.message });
 		}
 		return res.json(data || []);
+		
 	} catch (err) {
 		return res.status(500).json({ error: 'Unexpected server error' });
 	}

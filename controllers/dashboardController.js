@@ -1,9 +1,11 @@
 const { supabase } = require('../utils/supabaseClient');
+const { v4: uuidv4 } = require('uuid');
+
 
 async function getProducts(req, res) {
 	try {
 		const { id } = req.query;
-		let query = supabase.from('Products').select('*');
+		let query = supabase.from('products').select('*');
 		if (id != null) {
 			query = query.eq('id', id);
 		}
@@ -21,8 +23,10 @@ async function createProduct(req, res) {
 	try {
 		const formData = req.body;
 		const payload = {
-			Name: formData.Name,
-			created_at: new Date().toISOString(),
+			name: formData.Name,
+			id: uuidv4(),
+			colors:[],
+			company:"mythila",
 			image: formData.image,
 			description: formData.description,
 			price: formData.price,
@@ -30,7 +34,7 @@ async function createProduct(req, res) {
 			shipping: formData.shipping,
 			featured: formData.featured
 		};
-		const { data, error } = await supabase.from('Products').insert([payload]);
+		const { data, error } = await supabase.from('products').insert([payload]).select();
 		if (error) {
 			return res.status(400).json({ error: error.message });
 		}
@@ -45,8 +49,11 @@ async function updateProduct(req, res) {
 		const { id } = req.params;
 		const formData = req.body;
 		const payload = {
-			Name: formData.Name,
-			created_at: new Date().toISOString(),
+			
+			name: formData.Name,
+						colors:[],
+			company:"mythila",
+			
 			image: formData.image,
 			description: formData.description,
 			price: formData.price,
@@ -55,7 +62,7 @@ async function updateProduct(req, res) {
 			featured: formData.featured
 		};
 		const { data, error } = await supabase
-			.from('Products')
+			.from('products')
 			.update([payload])
 			.eq('id', id);
 		if (error) {
@@ -71,7 +78,7 @@ async function deleteProduct(req, res) {
 	try {
 		const { id } = req.params;
 		const { error } = await supabase
-			.from('Products')
+			.from('products')
 			.delete()
 			.eq('id', id);
 		if (error) {
